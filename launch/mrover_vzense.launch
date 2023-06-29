@@ -1,0 +1,63 @@
+<launch>
+
+  <!-- device_index used in  Ps2_GetDeviceInfo -->
+  <arg name="device_index" default="0"/>
+  <!-- dataMode used in  Ps2_SetDataMode -->
+  <arg name="dataMode" default="0"/>
+  <!-- depth_range used in  Ps2_SetDepthRange -->
+  <arg name="depth_range" default="0"/>
+  <!-- rgb_resolutin used in  Ps2_SetRGBResolution -->
+  <arg name="rgb_resolution" default="2"/>
+  <arg name="point_cloud" default="true"/>
+  
+  <node pkg="vzense_camera" type="vzense_camera" name="vzense_manager" output="screen" required="true">
+      <param name="device_index" value="$(arg device_index)" type="int"/>
+      <param name="dataMode" value="$(arg dataMode)" type="int"/>
+      <param name="depth_range" value="$(arg depth_range)" type="int"/>
+      <param name="rgb_resolution" value="$(arg rgb_resolution)" type="int"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="nodelet_pointcloudxyzrgb_manager" args="manager" if="$(arg point_cloud)"/>
+  <node pkg="nodelet" type="nodelet" name="pointcloudxyzrgb_manager"
+          args="load depth_image_proc/point_cloud_xyzrgb nodelet_pointcloudxyzrgb_manager" if="$(arg point_cloud)">
+      <remap from="depth_registered/image_rect" to="mrover/vzense/aligned_depth_to_color/image_raw"/>
+      <remap from="depth_registered/points" to="mrover/vzense/aligned_depth_to_color/points"/>
+      <remap from="rgb/image_rect_color" to="mrover/vzense/color/image_raw"/>
+      <remap from="rgb/camera_info" to="mrover/vzense/color/camera_info"/>
+  </node>
+
+<group ns="mrover/vzense/color/image_raw" >
+  <rosparam param="disable_pub_plugins">
+    - 'image_transport/compressed'
+    - 'image_transport/compressedDepth'
+    - 'image_transport/theora'
+  </rosparam>
+</group>
+
+<node pkg="image_transport" type="republish" name="rgb_compress" args="raw in:=/mrover/vzense/color/image_raw compressed out:=/mrover/vzense/color/image_repub"/>
+
+<group ns="mrover/vzense/depth/image_raw" >
+  <rosparam param="disable_pub_plugins">
+    - 'image_transport/compressed'
+    - 'image_transport/compressedDepth'
+    - 'image_transport/theora'
+  </rosparam>
+</group>
+
+<group ns="mrover/vzense/aligned_depth_to_color/image_raw" >
+  <rosparam param="disable_pub_plugins">
+    - 'image_transport/compressed'
+    - 'image_transport/compressedDepth'
+    - 'image_transport/theora'
+  </rosparam>
+</group>
+
+<group ns="mrover/vzense/ir/image_raw" >
+  <rosparam param="disable_pub_plugins">
+    - 'image_transport/compressed'
+    - 'image_transport/compressedDepth'
+    - 'image_transport/theora'
+  </rosparam>
+</group>
+
+</launch>

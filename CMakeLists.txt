@@ -29,11 +29,18 @@ catkin_python_setup()
 # ==============================================
 catkin_package(CATKIN_DEPENDS camera_info_manager image_transport tf2 tf2_ros geometry_msgs message_runtime roscpp rospy cv_bridge)
 
+message(CMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}")
+
 # ==============================================
 # Vzense setup
 # ==============================================
 find_package(OpenCV REQUIRED)
-find_library(libvzense_api NAMES libvzense_api.so PATHS dependencies/Lib/)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+  find_library(libvzense_api NAMES libvzense_api.so PATHS dependencies/Lib/Aarch)
+else()
+  find_library(libvzense_api NAMES libvzense_api.so PATHS dependencies/Lib/x64)
+endif()
+
 include_directories(include include dependencies/Include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 add_executable(vzense_camera src/vzense_driver.cpp

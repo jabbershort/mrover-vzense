@@ -24,7 +24,7 @@ using namespace cv;
 
 class VzenseManager {
 public:
-    explicit VzenseManager(int32_t device_index = 0, const std::string &topic_name = "Vzense");
+    explicit VzenseManager(int32_t device_index = 0, const std::string &topic_name = "mrover/vzense");
 
     void set_rgbResolution(const PsResolution resolutionIndex);
     void set_depthRange(const PsDepthRange range);
